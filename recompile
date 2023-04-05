@@ -71,10 +71,9 @@ armbian_rootfs_file="armbian.tar.xz"
 # Set the toolchain path
 toolchain_path="/usr/local/toolchain"
 # Set the default cross-compilation toolchain: [ gcc / clang ]
-toolchain_name="clang"
+toolchain_name="gcc"
 
 # QEMU BINARY
-qemu_binary_arm="qemu-arm-static"
 qemu_binary_arm64="qemu-aarch64-static"
 
 # Set font color
@@ -271,7 +270,7 @@ get_kernel_source() {
     # Download the kernel source code from github.com
     if [[ ! -d "${kernel_path}/${local_kernel_path}" ]]; then
         echo -e "${INFO} Start cloning from [ https://github.com/${server_kernel_repo} -b ${code_branch} ]"
-        git clone -q --single-branch --depth 1 https://github.com/${server_kernel_repo} -b ${code_branch} ${kernel_path}/${local_kernel_path}
+        git clone -q --single-branch --depth=1 --branch=${code_branch} https://github.com/${server_kernel_repo} ${kernel_path}/${local_kernel_path}
         [[ "${?}" -eq "0" ]] || error_msg "[ https://github.com/${server_kernel_repo} ] Clone failed."
     else
         # Get a local kernel version
@@ -463,7 +462,6 @@ generate_uinitrd() {
     sed -i "/^COMPRESS=/d" ${compress_initrd_file}
     echo "COMPRESS=gzip" >>${compress_initrd_file}
 
-    [[ -f "/usr/bin/${qemu_binary_arm}" ]] && cp -f /usr/bin/${qemu_binary_arm} ${tag_rootfs}/usr/bin/
     [[ -f "/usr/bin/${qemu_binary_arm64}" ]] && cp -f /usr/bin/${qemu_binary_arm64} ${tag_rootfs}/usr/bin/
     #echo -e "${INFO} The [ ${qemu_binary_arm64} ] file copy results: \n$(ls -l ${tag_rootfs}/usr/bin/${qemu_binary_arm64}) \n"
 
